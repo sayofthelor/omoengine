@@ -23,8 +23,14 @@ class Note extends FlxSprite
 
 	public var sustainLength:Float = 0;
 	public var isSustainNote:Bool = false;
+	public var sustainParent:Note;
+	public var sustainChildren:Array<Note> = [];
+
 
 	public var noteScore:Float = 1;
+
+	public var missed:Bool = false;
+	public var allowMiss:Bool = true;
 
 	public static var swagWidth:Float = 160 * 0.7;
 	public static var PURP_NOTE:Int = 0;
@@ -50,6 +56,17 @@ class Note extends FlxSprite
 		this.noteData = noteData;
 
 		var daStage:String = PlayState.curStage;
+
+		if (isSustainNote) {
+			if (!prevNote.isSustainNote) {
+				sustainParent = prevNote;
+				sustainParent.sustainChildren.push(this);
+			}
+			if (prevNote.isSustainNote) {
+				sustainParent = prevNote.sustainParent;
+				sustainParent.sustainChildren.push(this);
+			}
+		}
 
 		switch (daStage)
 		{
@@ -182,6 +199,11 @@ class Note extends FlxSprite
 
 			if (strumTime < Conductor.songPosition - Conductor.safeZoneOffset && !wasGoodHit)
 				tooLate = true;
+		
+			if (isSustainNote) {
+				if (sustainParent.missed)
+					missed = true;
+			}
 		}
 		else
 		{

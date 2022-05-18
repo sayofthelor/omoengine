@@ -1615,6 +1615,7 @@ class PlayState extends MusicBeatState
 		{
 			notes.forEachAlive(function(daNote:Note)
 			{
+				
 				if (daNote.y > FlxG.height)
 				{
 					daNote.active = false;
@@ -1679,10 +1680,18 @@ class PlayState extends MusicBeatState
 				// WIP interpolation shit? Need to fix the pause issue
 				// daNote.y = (strumLine.y - (songTime - daNote.strumTime) * (0.45 * PlayState.SONG.speed));
 
-				if (daNote.y < -daNote.height)
+				if (daNote.y < -daNote.height && !daNote.missed)
 				{
 					if (daNote.tooLate || !daNote.wasGoodHit)
 					{
+						daNote.missed = true;
+						if (daNote.sustainChildren.length > 0) {
+							for (n in daNote.sustainChildren)
+								n.missed = true;
+						} else if (daNote.sustainParent != null) {
+							for (n in daNote.sustainParent.sustainChildren)
+								n.missed = true;
+						}
 						health -= 0.0475;
 						vocals.volume = 0;
 					}
@@ -1752,20 +1761,30 @@ class PlayState extends MusicBeatState
 							daNote.destroy();	
 						}
 
-						if (daNote.y > FlxG.height) {
+						if (daNote.y > FlxG.height && !daNote.missed) {
 							if (daNote.tooLate || !daNote.wasGoodHit) {
+
+								daNote.missed = true;
+								if (daNote.sustainChildren.length > 0) {
+									for (n in daNote.sustainChildren)
+										n.missed = true;
+								} else if (daNote.sustainParent != null) {
+									for (n in daNote.sustainParent.sustainChildren)
+										n.missed = true;
+								}
+
 								health -= 0.0475;
 								vocals.volume = 0;
 
 								switch (daNote.noteData) {
 									case 0:
-										boyfriend.playAnim('singLEFTmiss');
+										boyfriend.playAnim('singLEFTmiss', true);
 									case 1:
-										boyfriend.playAnim('singDOWNmiss');
+										boyfriend.playAnim('singDOWNmiss', true);
 									case 2:
-										boyfriend.playAnim('singUPmiss');
+										boyfriend.playAnim('singUPmiss', true);
 									case 3:
-										boyfriend.playAnim('singRIGHTmiss');
+										boyfriend.playAnim('singRIGHTmiss', true);
 								}
 								
 							}
@@ -2090,7 +2109,7 @@ class PlayState extends MusicBeatState
 										inIgnoreList = true;
 								}
 								if (!inIgnoreList)
-									badNoteCheck();
+									badNoteCheck(coolNote);
 							}
 						}
 					}
@@ -2143,7 +2162,9 @@ class PlayState extends MusicBeatState
 			}
 			else
 			{
-				badNoteCheck();
+				notes.forEachAlive(function(n:Note) {
+				badNoteCheck(n);
+				});
 			}
 		}
 
@@ -2177,6 +2198,8 @@ class PlayState extends MusicBeatState
 		{
 			if (boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss'))
 			{
+				boyfriend.playAnim('idle');
+			} else if (boyfriend.animation.curAnim.name.endsWith('miss') && boyfriend.animation.curAnim.finished) {
 				boyfriend.playAnim('idle');
 			}
 		}
@@ -2218,11 +2241,26 @@ class PlayState extends MusicBeatState
 		});
 	}
 
-	function noteMiss(direction:Int = 1):Void
+	function noteMiss(direction:Int = 1, note:Note):Void
 	{
-		if (!boyfriend.stunned)
+
+		if (!boyfriend.stunned && note.missed && !boyfriend.animation.curAnim.name.endsWith('miss')) {
+			switch (direction)
+			{
+			case 0:
+					boyfriend.playAnim('singLEFTmiss', true);
+				case 1:
+					boyfriend.playAnim('singDOWNmiss', true);
+				case 2:
+					boyfriend.playAnim('singUPmiss', true);
+					case 3:
+					boyfriend.playAnim('singRIGHTmiss', true);
+			}
+		}
+
+		if (!boyfriend.stunned && !note.missed)
 		{
-			health -= 0.04;
+			health -= 0.0475;
 			if (combo > 5 && gf.animOffsets.exists('sad'))
 			{
 				gf.playAnim('sad');
@@ -2243,21 +2281,23 @@ class PlayState extends MusicBeatState
 				boyfriend.stunned = false;
 			});
 
+			note.missed = true;
+
 			switch (direction)
 			{
-				case 0:
+			case 0:
 					boyfriend.playAnim('singLEFTmiss', true);
 				case 1:
 					boyfriend.playAnim('singDOWNmiss', true);
 				case 2:
 					boyfriend.playAnim('singUPmiss', true);
-				case 3:
+					case 3:
 					boyfriend.playAnim('singRIGHTmiss', true);
 			}
 		}
 	}
 
-	function badNoteCheck()
+	function badNoteCheck(note:Note)
 	{
 		// just double pasting this shit cuz fuk u
 		// REDO THIS SYSTEM!
@@ -2267,13 +2307,13 @@ class PlayState extends MusicBeatState
 		var leftP = controls.LEFT_P;
 
 		if (leftP)
-			noteMiss(0);
+			noteMiss(0, note);
 		if (downP)
-			noteMiss(1);
+			noteMiss(1, note);
 		if (upP)
-			noteMiss(2);
+			noteMiss(2, note);
 		if (rightP)
-			noteMiss(3);
+			noteMiss(3, note);
 	}
 
 	function noteCheck(keyP:Bool, note:Note):Void
@@ -2282,7 +2322,7 @@ class PlayState extends MusicBeatState
 			goodNoteHit(note);
 		else
 		{
-			badNoteCheck();
+			badNoteCheck(note);
 		}
 	}
 
