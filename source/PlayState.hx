@@ -2301,11 +2301,13 @@ class PlayState extends MusicBeatState
 	{
 		// just double pasting this shit cuz fuk u
 		// REDO THIS SYSTEM!
+		
 		var upP = controls.UP_P;
 		var rightP = controls.RIGHT_P;
 		var downP = controls.DOWN_P;
 		var leftP = controls.LEFT_P;
 
+		if (!Prefs.ghostTapping) {
 		if (leftP)
 			noteMiss(0, note);
 		if (downP)
@@ -2314,6 +2316,7 @@ class PlayState extends MusicBeatState
 			noteMiss(2, note);
 		if (rightP)
 			noteMiss(3, note);
+	}
 	}
 
 	function noteCheck(keyP:Bool, note:Note):Void
