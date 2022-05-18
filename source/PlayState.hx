@@ -687,6 +687,8 @@ class PlayState extends MusicBeatState
 		Conductor.songPosition = -5000;
 
 		strumLine = new FlxSprite(0, 50).makeGraphic(FlxG.width, 10);
+		if (Prefs.downscroll)
+			strumLine.y = FlxG.height - 150;
 		strumLine.scrollFactor.set();
 
 		strumLineNotes = new FlxTypedGroup<FlxSprite>();
@@ -722,6 +724,8 @@ class PlayState extends MusicBeatState
 		FlxG.fixedTimestep = false;
 
 		healthBarBG = new FlxSprite(0, FlxG.height * 0.9).loadGraphic(Paths.image('healthBar'));
+		if (Prefs.downscroll)
+			healthBarBG.y = 0.11 * FlxG.height;
 		healthBarBG.screenCenter(X);
 		healthBarBG.scrollFactor.set();
 		add(healthBarBG);
@@ -1622,6 +1626,7 @@ class PlayState extends MusicBeatState
 					daNote.active = true;
 				}
 
+				if (!Prefs.downscroll) {
 				daNote.y = (strumLine.y - (Conductor.songPosition - daNote.strumTime) * (0.45 * FlxMath.roundDecimal(SONG.speed, 2)));
 
 				// i am so fucking sorry for this if condition
@@ -1689,6 +1694,89 @@ class PlayState extends MusicBeatState
 					notes.remove(daNote, true);
 					daNote.destroy();
 				}
+			} else {
+				daNote.y = (strumLine.y + (Conductor.songPosition - daNote.strumTime) * (0.45 * FlxMath.roundDecimal(SONG.speed, 2)));
+				
+				if (daNote.isSustainNote) {
+					if (daNote.animation.curAnim.name.endsWith("end") && daNote.prevNote != null) {
+						daNote.y += daNote.prevNote.height + 9;
+						daNote.flipY = true;
+					} else {
+						daNote.y += daNote.height / 2;
+					}
+				}
+
+				if (daNote.isSustainNote && daNote.y + daNote.offset.y <= strumLine.y + Note.swagWidth / 2
+					&& (!daNote.mustPress || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))) {
+						var swagRect = new FlxRect(0, 0, daNote.frameWidth * 2, daNote.frameHeight * 2);
+						swagRect.height = (strumLineNotes.members[Math.floor(Math.abs(daNote.noteData))].y
+							+ Note.swagWidth / 2
+							- daNote.y) / daNote.scale.y;
+						swagRect.y = daNote.frameHeight - swagRect.height;
+
+						daNote.clipRect = swagRect;
+					}
+
+					if (!daNote.mustPress && daNote.wasGoodHit)
+						{
+							if (SONG.song != 'Tutorial')
+								camZooming = true;
+	
+							var altAnim:String = "";
+	
+							if (SONG.notes[Math.floor(curStep / 16)] != null)
+							{
+								if (SONG.notes[Math.floor(curStep / 16)].altAnim)
+									altAnim = '-alt';
+							}
+	
+							switch (Math.abs(daNote.noteData))
+							{
+								case 0:
+									dad.playAnim('singLEFT' + altAnim, true);
+								case 1:
+									dad.playAnim('singDOWN' + altAnim, true);
+								case 2:
+									dad.playAnim('singUP' + altAnim, true);
+								case 3:
+									dad.playAnim('singRIGHT' + altAnim, true);
+							}
+
+							// 2do: dad strum arrow anims
+	
+							if (SONG.needsVoices)
+								vocals.volume = 1;
+	
+							daNote.kill();
+							notes.remove(daNote, true);
+							daNote.destroy();	
+						}
+
+						if (daNote.y > FlxG.height) {
+							if (daNote.tooLate || !daNote.wasGoodHit) {
+								health -= 0.0475;
+								vocals.volume = 0;
+
+								switch (daNote.noteData) {
+									case 0:
+										boyfriend.playAnim('singLEFTmiss');
+									case 1:
+										boyfriend.playAnim('singDOWNmiss');
+									case 2:
+										boyfriend.playAnim('singUPmiss');
+									case 3:
+										boyfriend.playAnim('singRIGHTmiss');
+								}
+								
+							}
+
+							daNote.active = false;
+							daNote.visible = false;
+							daNote.kill();
+							notes.remove(daNote, true);
+							daNote.destroy();
+						}
+			}
 			});
 		}
 
@@ -1733,7 +1821,6 @@ class PlayState extends MusicBeatState
 
 				if (SONG.validScore)
 				{
-					NGio.unlockMedal(60961);
 					Highscore.saveWeekScore(storyWeek, campaignScore, storyDifficulty);
 				}
 
@@ -2237,12 +2324,15 @@ class PlayState extends MusicBeatState
 			note.wasGoodHit = true;
 			vocals.volume = 1;
 
+			
+
 			if (!note.isSustainNote)
 			{
 				note.kill();
 				notes.remove(note, true);
 				note.destroy();
 			}
+			
 		}
 	}
 
@@ -2357,7 +2447,7 @@ class PlayState extends MusicBeatState
 
 		if (generatedMusic)
 		{
-			notes.sort(FlxSort.byY, FlxSort.DESCENDING);
+			notes.sort(FlxSort.byY, Prefs.downscroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
 		}
 
 		if (SONG.notes[Math.floor(curStep / 16)] != null)
