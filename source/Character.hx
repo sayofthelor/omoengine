@@ -1,5 +1,8 @@
 package;
 
+import sys.FileSystem;
+import lime.utils.Assets;
+import haxe.Json;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.animation.FlxBaseAnimation;
@@ -7,6 +10,24 @@ import flixel.graphics.frames.FlxAtlasFrames;
 
 using StringTools;
 
+typedef AnimBlock = {
+	var name:String;
+	var prefix:String;
+	var ?indices:Array<Int>;
+	var ?looped:Bool;
+	var ?fps:Int;
+	var ?offsets:Array<Int>;
+}
+typedef CharacterFile = {
+	var color:String;
+	var danceIdle:Bool; // danceLeft danceRight shit
+	var filePath:String;
+	var library:String;
+	var antialiasing:Bool;
+	var isPixel:Bool;
+
+	var animations:Array<AnimBlock>;
+}
 class Character extends FlxSprite
 {
 	public var animOffsets:Map<String, Array<Dynamic>>;
@@ -16,6 +37,35 @@ class Character extends FlxSprite
 	public var curCharacter:String = 'bf';
 
 	public var holdTimer:Float = 0;
+
+	public var healthbarColor:Int;
+
+	public var danceIdle:Bool = false;
+	public var isPixel:Bool = false;
+
+	public function parseCharacterFile(name:String) {
+		var charFile:CharacterFile = cast Json.parse(Assets.getText(Paths.json('characters/$name', 'preload')));
+		var tex = Paths.getSparrowAtlas(charFile.filePath, charFile.library);
+		healthbarColor = Std.parseInt(charFile.color);
+		antialiasing = charFile.antialiasing;
+		danceIdle = charFile.danceIdle;
+		isPixel = charFile.isPixel;
+
+		frames = tex;
+
+		for (anim in charFile.animations) {
+			if (anim.indices != null && anim.indices.length > 0) {
+				animation.addByIndices(anim.name, anim.prefix, anim.indices, '', anim.fps, anim.looped);
+			} else {
+				animation.addByPrefix(anim.name, anim.prefix, anim.fps, anim.looped);
+			}
+
+			var theOffset = anim.offsets;
+			if (theOffset == null)
+				theOffset = [0, 0];
+			addOffset(anim.name, theOffset[0], theOffset[1]);
+		}
+	}
 
 	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false)
 	{
@@ -28,6 +78,13 @@ class Character extends FlxSprite
 		var tex:FlxAtlasFrames;
 		antialiasing = true;
 
+		var charFileExists = FileSystem.exists(Paths.json('characters/$character', 'preload'));
+
+		if (charFileExists) {
+			trace("Loading character from characters/" + character + '.json');
+			parseCharacterFile(character);
+			initialDance();
+		} else {
 		switch (curCharacter)
 		{
 			case 'gf':
@@ -496,6 +553,7 @@ class Character extends FlxSprite
 
 				playAnim('idle');
 		}
+	}
 
 		dance();
 
@@ -522,9 +580,10 @@ class Character extends FlxSprite
 		}
 	}
 
+	
 	override function update(elapsed:Float)
 	{
-		if (!curCharacter.startsWith('bf'))
+		if (!curCharacter.startsWith('bf') && animation.curAnim != null)
 		{
 			if (animation.curAnim.name.startsWith('sing'))
 			{
@@ -557,6 +616,19 @@ class Character extends FlxSprite
 	/**
 	 * FOR GF DANCING SHIT
 	 */
+
+	public function initialDance() {
+		if (danceIdle) {
+			danced = !danced;
+			if (danced)
+				playAnim('danceRight');
+			else
+				playAnim('danceLeft');
+		} else {
+			playAnim('idle');
+		}
+	}
+
 	public function dance()
 	{
 		if (!debugMode)
@@ -614,7 +686,15 @@ class Character extends FlxSprite
 					else
 						playAnim('danceLeft');
 				default:
-					playAnim('idle');
+					if (danceIdle) {
+						danced = !danced;
+						if (danced)
+							playAnim('danceRight');
+						else
+							playAnim('danceLeft');
+					} else {
+						playAnim('idle');
+					}
 			}
 		}
 	}
