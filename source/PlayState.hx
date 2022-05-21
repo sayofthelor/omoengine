@@ -120,6 +120,8 @@ class PlayState extends MusicBeatState
 	var talking:Bool = true;
 	var songScore:Int = 0;
 	var scoreTxt:FlxText;
+	
+	public var events:Array<Dynamic> = [];
 
 	public static var campaignScore:Int = 0;
 
@@ -159,6 +161,12 @@ class PlayState extends MusicBeatState
 
 		if (SONG == null)
 			SONG = Song.loadFromJson('tutorial');
+
+		if (SONG.events == null) {
+			SONG.events = [];
+		}
+
+		events = SONG.events;
 
 		Conductor.mapBPMChanges(SONG);
 		Conductor.changeBPM(SONG.bpm);
@@ -1326,6 +1334,8 @@ class PlayState extends MusicBeatState
 
 		super.update(elapsed);
 
+		doEvents();
+
 		scoreTxt.text = "Score:" + songScore;
 
 		if (FlxG.keys.justPressed.ENTER && startedCountdown && canPause)
@@ -1756,6 +1766,22 @@ class PlayState extends MusicBeatState
 		if (FlxG.keys.justPressed.ONE)
 			endSong();
 		#end
+	}
+
+	function doEvents() {
+		for (ev in events) {
+			if (Conductor.songPosition > ev[0]) {
+				var event:String = ev[1];
+				var args:Array<Dynamic> = ev[2];
+
+				switch (event.toLowerCase()) {
+					case 'test':
+						boyfriend.setGraphicSize(40, 40 + FlxG.random.int(20, 40));
+				}
+
+				events.remove(ev);
+			}
+		}
 	}
 
 	function endSong():Void

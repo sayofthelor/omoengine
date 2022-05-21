@@ -1,0 +1,6 @@
+hey:Hey!:Make Boyfriend play the "Hey!" animation.
+changebpm:Change BPM:Change the BPM. (WIP)
+changebf:Change Boyfriend:Change Boyfriend to someone else.
+changedad:Change Opponent:Change the opponent to someone else.
+changegf:Change Girlfriend:Change Girlfriend to someone else.
+playsound:Play Sound:Play a sound from your selected path.
