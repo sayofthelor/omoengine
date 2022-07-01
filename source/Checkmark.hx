@@ -6,6 +6,7 @@ class Checkmark extends FlxSprite {
    
     public var checked(default, set):Bool = false;
     public var variable:String;
+    public var doAnims:Bool = false;
 
     public function new(?x:Float, ?y:Float, variable:String) {
         super(x, y);
@@ -21,6 +22,27 @@ class Checkmark extends FlxSprite {
     }
 
     override function update(elapsed:Float) {
+
+        if (animation.curAnim == null) {
+            if (Reflect.getProperty(Prefs, variable)) {
+                animation.play("checked");
+                trace('sex');
+            } else {
+                animation.play("unchecked");
+                trace('sex2');
+            }
+        }
+
+        if (doAnims) {
+        if (Reflect.getProperty(Prefs, variable)) {
+            animation.play("checking", true, false);
+            offset.set(19, 10);
+        } else {
+            animation.play("checking", true, true);
+            offset.set(19, 10);
+        }
+    }
+
         if (animation.curAnim != null) {
             if (animation.curAnim.name == "checking") {
                 if (checked && animation.curAnim.finished) {
@@ -39,11 +61,15 @@ class Checkmark extends FlxSprite {
     function set_checked(value:Bool) {
         if (checked == value) return checked;
 
+        Reflect.setProperty(Prefs, variable, value);
+
         if (animation.curAnim == null) {
             if (value) {
                 animation.play("checked");
+                trace('sex');
             } else {
                 animation.play("unchecked");
+                trace('sex2');
             }
 
             return checked = value;
@@ -56,7 +82,6 @@ class Checkmark extends FlxSprite {
             animation.play("checking", true, true);
             offset.set(19, 10);
         }
-        Reflect.setProperty(Prefs, variable, value);
         return checked = value;
     }
 }

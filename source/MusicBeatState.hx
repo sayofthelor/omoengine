@@ -16,8 +16,25 @@ class MusicBeatState extends FlxUIState
 	private var curBeat:Int = 0;
 	private var controls(get, never):Controls;
 
+	public static var initted:Bool = false;
+
 	inline function get_controls():Controls
 		return PlayerSettings.player1.controls;
+
+	public function new() {
+
+		super();
+		
+		if (!initted) {
+			FlxG.save.bind('funkin', 'ninjamuffin99');
+
+			Highscore.load();
+			
+			Prefs.load();
+
+			initted = true;
+		}
+	}
 
 	override function create()
 	{
