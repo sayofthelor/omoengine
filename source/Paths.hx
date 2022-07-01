@@ -95,6 +95,14 @@ class Paths
 		return 'songs:assets/songs/${song.toLowerCase()}/Inst.$SOUND_EXT';
 	}
 
+	inline static function skinJson(skin:String) {
+		return 'skins/$skin.json';
+	}
+
+	inline static public function skin(skin:String) {
+		return 'skins/$skin';
+	}
+
 	inline static public function image(key:String, ?library:String)
 	{
 		return getPath('images/$key.png', IMAGE, library);

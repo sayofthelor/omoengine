@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="Checkmark.png">
+	<!-- Created with Adobe Animate version 19.2.1.408 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="Check Instanz 10000" x="10" y="10" width="184" height="166" pivotX="0" pivotY="0"/>
+	<SubTexture name="Checking Instanz 10000" x="214" y="10" width="238" height="161" pivotX="35.15" pivotY="28.9" frameX="-4" frameY="-20" frameWidth="246" frameHeight="202"/>
+	<SubTexture name="Checking Instanz 10001" x="214" y="10" width="238" height="161" frameX="-4" frameY="-20" frameWidth="246" frameHeight="202"/>
+	<SubTexture name="Checking Instanz 10002" x="10" y="196" width="246" height="168" frameX="0" frameY="-17" frameWidth="246" frameHeight="202"/>
+	<SubTexture name="Checking Instanz 10003" x="10" y="196" width="246" height="168" frameX="0" frameY="-17" frameWidth="246" frameHeight="202"/>
+	<SubTexture name="Checking Instanz 10004" x="276" y="196" width="202" height="202" frameX="-6" frameY="0" frameWidth="246" frameHeight="202"/>
+	<SubTexture name="Checking Instanz 10005" x="10" y="418" width="183" height="173" frameX="-21" frameY="-14" frameWidth="246" frameHeight="202"/>
+	<SubTexture name="Checking Instanz 10006" x="213" y="418" width="171" height="181" frameX="-26" frameY="-1" frameWidth="246" frameHeight="202"/>
+	<SubTexture name="Checking Instanz 10007" x="213" y="418" width="171" height="181" frameX="-26" frameY="-1" frameWidth="246" frameHeight="202"/>
+	<SubTexture name="Checking Instanz 10008" x="10" y="619" width="193" height="154" frameX="-21" frameY="-24" frameWidth="246" frameHeight="202"/>
+	<SubTexture name="Checking Instanz 10009" x="10" y="619" width="193" height="154" frameX="-21" frameY="-24" frameWidth="246" frameHeight="202"/>
+	<SubTexture name="Checking Instanz 10010" x="223" y="619" width="187" height="152" frameX="-23" frameY="-25" frameWidth="246" frameHeight="202"/>
+	<SubTexture name="Checking Instanz 10011" x="223" y="619" width="187" height="152" frameX="-23" frameY="-25" frameWidth="246" frameHeight="202"/>
+	<SubTexture name="Checking Instanz 10012" x="10" y="793" width="185" height="167" frameX="-17" frameY="-10" frameWidth="246" frameHeight="202"/>
+	<SubTexture name="Checking Instanz 10013" x="10" y="793" width="185" height="167" frameX="-17" frameY="-10" frameWidth="246" frameHeight="202"/>
+	<SubTexture name="No check Instanz 10000" x="215" y="793" width="152" height="152" pivotX="3.75" pivotY="3.75"/>
+</TextureAtlas>

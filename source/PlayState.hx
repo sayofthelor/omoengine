@@ -77,8 +77,6 @@ class PlayState extends MusicBeatState
 	private var playerStrums:FlxTypedGroup<FlxSprite>;
 	private var opponentStrums:FlxTypedGroup<FlxSprite>;
 
-	private var grpNoteSplashes:FlxTypedGroup<NoteSplash>;
-
 	private var camZooming:Bool = false;
 	private var curSong:String = "";
 
@@ -768,7 +766,6 @@ class PlayState extends MusicBeatState
 
 		strumLineNotes.cameras = [camHUD];
 		notes.cameras = [camHUD];
-		grpNoteSplashes.cameras = [camHUD];
 		healthBar.cameras = [camHUD];
 		healthBarBG.cameras = [camHUD];
 		iconP1.cameras = [camHUD];
@@ -1078,9 +1075,6 @@ class PlayState extends MusicBeatState
 		playerNotes = new FlxTypedGroup<Note>();
 		opponentNotes = new FlxTypedGroup<Note>();
 
-		grpNoteSplashes = new FlxTypedGroup<NoteSplash>();
-		add(grpNoteSplashes);
-
 		var noteData:Array<SwagSection>;
 
 		// NEW SHIT
@@ -1149,14 +1143,6 @@ class PlayState extends MusicBeatState
 		unspawnNotes.sort(sortByShit);
 
 		generatedMusic = true;
-	}
-
-	public function spawnNoteSplash(note:Note) {
-		var strumNote = playerStrums.members[note.noteData];
-		var noteSplash = grpNoteSplashes.recycle(NoteSplash);
-		noteSplash.setup(strumNote.x, strumNote.y, note.noteData);
-		noteSplash.alpha = note.alpha / 2 + (note.alpha / 10);
-		grpNoteSplashes.add(noteSplash);
 	}
 
 	function sortByShit(Obj1:Note, Obj2:Note):Int
@@ -1898,9 +1884,6 @@ class PlayState extends MusicBeatState
 			daRating = 'good';
 			score = 200;
 		}
-
-		if (daRating == 'sick' && Prefs.noteSplashes)
-			spawnNoteSplash(note);
 
 		songScore += score;
 
