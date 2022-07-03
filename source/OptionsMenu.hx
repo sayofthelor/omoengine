@@ -33,8 +33,8 @@ class OptionsMenu extends MusicBeatState
 		super();
 	
 		menus["Menu"] = [
-			["Gameplay"],
-			["HUD"]
+			["Gameplay", null, "menu"],
+			["HUD", null, "menu"]
 		];
 
 		menus["Gameplay"] = [
@@ -67,16 +67,22 @@ class OptionsMenu extends MusicBeatState
 
 		spriteGroup = new FlxSpriteGroup();
 
-		loadMenu("Gameplay");
+		loadMenu("Menu");
 
-		trace(Prefs.downscroll);
-		
+		alphabetTween();
+
 		super.create();
 	}
 
 	function loadMenu(menu:String) {
 		curMenu = menu;
+		trace(curMenu);
 		var data = menus[menu];
+		trace(data);
+
+		alphabetGroup.clear();
+		checkmarkGroup.clear();
+		spriteGroup.clear();
 
 		curOptions = [];
 
@@ -105,14 +111,21 @@ class OptionsMenu extends MusicBeatState
 
 	function changeValue(text:String, type:String = "bool") {
 		switch (type) {
-			case "bool": {
+			case "bool":
 				var checkmark = textCheckmarkMap.get(text);
 				trace("1", Reflect.getProperty(Prefs, checkmark.variable));
 				Reflect.setProperty(Prefs, checkmark.variable, !Reflect.getProperty(Prefs, checkmark.variable));
 				checkmark.checked = Reflect.getProperty(Prefs, checkmark.variable);
 				trace("2", Reflect.getProperty(Prefs, checkmark.variable));
-			}
+			case "menu":
+				for (i in menus["Menu"]) {
+					if (i[0] == text) {
+						loadMenu(text);
+					}
+				}
 		}
+
+		alphabetTween();
 	}
 
 	override function update(elapsed:Float)
@@ -145,9 +158,9 @@ class OptionsMenu extends MusicBeatState
 		var data = menus[curMenu];
 		for (i in alphabetGroup.members) {
 				if (i.text == data[curSelected][0]) {
-					FlxTween.tween(i, {x: 100}, .3);
+					FlxTween.tween(i, {x: 100}, .1);
 				} else {
-					FlxTween.tween(i, {x: 60}, .3);
+					FlxTween.tween(i, {x: 60}, .1);
 				}
 		}
 	}
