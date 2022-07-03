@@ -27,6 +27,7 @@ class OptionsMenu extends MusicBeatState
 	var textCheckmarkMap:Map<String, Checkmark> = [];
 
 	public var curMenu:String;
+	public var prevMenu:String;
 	public var curOptions:Array<String> = [];
 
 	public function new() {
@@ -75,10 +76,20 @@ class OptionsMenu extends MusicBeatState
 	}
 
 	function loadMenu(menu:String) {
+
+		curSelected = 0;
+
+		prevMenu = curMenu;
+		if (menu == 'Menu') prevMenu = 'exit';
+
 		curMenu = menu;
-		trace(curMenu);
+
+		if (curMenu == 'exit') {
+			FlxG.switchState(new MainMenuState());
+			return;
+		};
+
 		var data = menus[menu];
-		trace(data);
 
 		alphabetGroup.clear();
 		checkmarkGroup.clear();
@@ -86,10 +97,14 @@ class OptionsMenu extends MusicBeatState
 
 		curOptions = [];
 
+		trace(data);
 		for (s in data) {
+			trace(s);
 			curOptions.push(s[1]);
 			makeText(s[0], s[1], s[2] == "bool");
 		}
+
+		trace(curOptions);
 	}
 
 	function makeText(text:String, value:String, isBool:Bool = false) {
@@ -117,15 +132,19 @@ class OptionsMenu extends MusicBeatState
 				Reflect.setProperty(Prefs, checkmark.variable, !Reflect.getProperty(Prefs, checkmark.variable));
 				checkmark.checked = Reflect.getProperty(Prefs, checkmark.variable);
 				trace("2", Reflect.getProperty(Prefs, checkmark.variable));
+				return;
 			case "menu":
 				for (i in menus["Menu"]) {
 					if (i[0] == text) {
 						loadMenu(text);
+						alphabetTween();
+						return;
 					}
 				}
+				trace("Could not find menu");
 		}
 
-		alphabetTween();
+		return;
 	}
 
 	override function update(elapsed:Float)
@@ -152,16 +171,18 @@ class OptionsMenu extends MusicBeatState
 			}
 		}
 
-		if (FlxG.keys.justPressed.ESCAPE) FlxG.switchState(new MainMenuState());
+		if (FlxG.keys.justPressed.ESCAPE) loadMenu(prevMenu);
 	}
 	function alphabetTween() {
 		var data = menus[curMenu];
+		if (alphabetGroup.length > 0) {
 		for (i in alphabetGroup.members) {
 				if (i.text == data[curSelected][0]) {
 					FlxTween.tween(i, {x: 100}, .1);
 				} else {
 					FlxTween.tween(i, {x: 60}, .1);
 				}
+			}
 		}
 	}
 

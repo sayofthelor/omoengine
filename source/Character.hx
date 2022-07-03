@@ -604,8 +604,11 @@ class Character extends FlxSprite
 		switch (curCharacter)
 		{
 			case 'gf':
-				if (animation.curAnim.name == 'hairFall' && animation.curAnim.finished)
+				if (animation.curAnim.name == 'hairFall' && animation.curAnim.finished) {
 					playAnim('danceRight');
+					FlxG.log.add("BOOP!");
+					trace("SEBOOP");
+				}
 		}
 
 		super.update(elapsed);

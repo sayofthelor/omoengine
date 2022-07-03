@@ -1,5 +1,6 @@
 package;
 
+import openfl.Assets;
 import flixel.FlxG;
 import flixel.graphics.frames.FlxAtlasFrames;
 import openfl.utils.AssetType;
@@ -93,6 +94,13 @@ class Paths
 	inline static public function inst(song:String)
 	{
 		return 'songs:assets/songs/${song.toLowerCase()}/Inst.$SOUND_EXT';
+	}
+
+	inline static public function dialogue(path:String, ?library:String) {
+		var path = getPath('data/dialogue/$path', TEXT, library);
+		if (Assets.exists(path + '.json')) return path + '.json';
+
+		return path + '.txt'; 
 	}
 
 	inline static function skinJson(skin:String) {

@@ -73,9 +73,9 @@ class PlayState extends MusicBeatState
 
 	private static var prevCamFollow:FlxObject;
 
-	private var strumLineNotes:FlxTypedGroup<FlxSprite>;
-	private var playerStrums:FlxTypedGroup<FlxSprite>;
-	private var opponentStrums:FlxTypedGroup<FlxSprite>;
+	private var strumLineNotes:FlxTypedGroup<StaticArrow>;
+	private var playerStrums:FlxTypedGroup<StaticArrow>;
+	private var opponentStrums:FlxTypedGroup<StaticArrow>;
 
 	private var camZooming:Bool = false;
 	private var curSong:String = "";
@@ -189,11 +189,11 @@ class PlayState extends MusicBeatState
 					"Only then I will even CONSIDER letting you\ndate my daughter!"
 				];
 			case 'senpai':
-				dialogue = CoolUtil.coolTextFile(Paths.txt('senpai/senpaiDialogue'));
+				dialogue = CoolUtil.coolTextFile(Paths.dialogue('senpaiDialogue'));
 			case 'roses':
-				dialogue = CoolUtil.coolTextFile(Paths.txt('roses/rosesDialogue'));
+				dialogue = CoolUtil.coolTextFile(Paths.dialogue('rosesDialogue'));
 			case 'thorns':
-				dialogue = CoolUtil.coolTextFile(Paths.txt('thorns/thornsDialogue'));
+				dialogue = CoolUtil.coolTextFile(Paths.dialogue('thornsDialogue'));
 		}
 
 		#if desktop
@@ -704,11 +704,11 @@ class PlayState extends MusicBeatState
 			strumLine.y = FlxG.height - 150;
 		strumLine.scrollFactor.set();
 
-		strumLineNotes = new FlxTypedGroup<FlxSprite>();
+		strumLineNotes = new FlxTypedGroup<StaticArrow>();
 		add(strumLineNotes);
 
-		playerStrums = new FlxTypedGroup<FlxSprite>();
-		opponentStrums = new FlxTypedGroup<FlxSprite>();
+		playerStrums = new FlxTypedGroup<StaticArrow>();
+		opponentStrums = new FlxTypedGroup<StaticArrow>();
 
 		// startCountdown();
 
@@ -1182,10 +1182,10 @@ class PlayState extends MusicBeatState
 					if (i > 1)
 						babyArrow.x += FlxG.width / 2 + 25;
 				}
+				babyArrow.visible = !Prefs.hideOpponentNotes;
 				opponentStrums.add(babyArrow);
 			}
 
-			// babyArrow.animation.play('static');
 			babyArrow.x += 50;
 			babyArrow.x += ((FlxG.width / 2) * player);
 
@@ -1315,7 +1315,7 @@ class PlayState extends MusicBeatState
 						trainFrameTiming = 0;
 					}
 				}
-				// phillyCityLights.members[curLight].alpha -= (Conductor.crochet / 1000) * FlxG.elapsed;
+				phillyCityLights.members[curLight].alpha -= (Conductor.crochet / 1000) * FlxG.elapsed;
 		}
 
 		super.update(elapsed);
@@ -1603,14 +1603,16 @@ class PlayState extends MusicBeatState
 				}
 				else
 				{
+					daNote.visible = true;
 					if (!daNote.mustPress && Prefs.hideOpponentNotes)
 						daNote.visible = false;
 					daNote.active = true;
+					
 				}
 
 				if (!Prefs.downscroll) {
 				daNote.y = (strumLine.y - (Conductor.songPosition - daNote.strumTime) * (0.45 * FlxMath.roundDecimal(SONG.speed, 2)));
-
+					// daNote.visible = true;
 				// i am so fucking sorry for this if condition
 				if (daNote.isSustainNote
 					&& daNote.y + daNote.offset.y <= strumLine.y + Note.swagWidth / 2
@@ -1639,6 +1641,17 @@ class PlayState extends MusicBeatState
 						}
 						health -= 0.0475;
 						vocals.volume = 0;
+
+						switch (daNote.noteData) {
+							case 0:
+								boyfriend.playAnim('singLEFTmiss', true);
+							case 1:
+								boyfriend.playAnim('singDOWNmiss', true);
+							case 2:
+								boyfriend.playAnim('singUPmiss', true);
+							case 3:
+								boyfriend.playAnim('singRIGHTmiss', true);
+						}
 					}
 
 					daNote.active = false;
@@ -1696,7 +1709,6 @@ class PlayState extends MusicBeatState
 									case 3:
 										boyfriend.playAnim('singRIGHTmiss', true);
 								}
-								
 							}
 
 							daNote.active = false;
@@ -2253,7 +2265,7 @@ class PlayState extends MusicBeatState
 					boyfriend.playAnim('singDOWNmiss', true);
 				case 2:
 					boyfriend.playAnim('singUPmiss', true);
-					case 3:
+				case 3:
 					boyfriend.playAnim('singRIGHTmiss', true);
 			}
 		}
@@ -2410,8 +2422,8 @@ class PlayState extends MusicBeatState
 		gf.playAnim('hairFall');
 		phillyTrain.x = FlxG.width + 200;
 		trainMoving = false;
-		// trainSound.stop();
-		// trainSound.time = 0;
+		trainSound.stop();
+		trainSound.time = 0;
 		trainCars = 8;
 		trainFinishing = false;
 		startedMoving = false;
@@ -2545,8 +2557,8 @@ class PlayState extends MusicBeatState
 
 					curLight = FlxG.random.int(0, phillyCityLights.length - 1);
 
-					phillyCityLights.members[curLight].visible = true;
-					// phillyCityLights.members[curLight].alpha = 1;
+					// phillyCityLights.members[curLight].visible = true;
+					phillyCityLights.members[curLight].alpha = 1;
 				}
 
 				if (curBeat % 8 == 4 && FlxG.random.bool(30) && !trainMoving && trainCooldown > 8)

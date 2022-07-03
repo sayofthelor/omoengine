@@ -19,7 +19,7 @@ class StaticArrow extends FlxSprite {
     }
 
     public function loadPixelWeekSkin(data:Int) {
-        loadGraphic(Paths.image('weeb/pixelUI/arrows-pixel'), true, 17, 17);
+        loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels', 'week6'), true, 17, 17);
 
         animation.add('green', [6]);
         animation.add('red', [7]);
